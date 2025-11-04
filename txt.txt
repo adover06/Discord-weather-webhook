@@ -1,0 +1,18 @@
+{
+  "content": "Hello there! This is a basic message.",
+  "embeds": [
+    {
+      "title": "Example Embed",
+      "description": "This is a more complex message with an embed.",
+      "color": 65474,
+      "fields": [
+        {
+          "name": "Field 1",
+          "value": "Value 1"
+        }
+      ]
+    }
+  ],
+  "username": "My Custom Bot",
+  "avatar_url": "https://example.com/avatar.png"
+}
