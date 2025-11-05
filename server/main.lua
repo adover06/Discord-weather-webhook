@@ -9,12 +9,6 @@ local function encode(data)
     if ok then return res else return "{}" end
 end
 
-local function tableMerge(a, b)
-    local out = {}
-    if a then for k,v in pairs(a) do out[k]=v end end
-    if b then for k,v in pairs(b) do out[k]=v end end
-    return out
-end
 
 local function sendDiscord(weather, meta)
     if WEBHOOK_URL == nil or WEBHOOK_URL == "" then
@@ -67,6 +61,34 @@ local function sendDiscord(weather, meta)
     end, "POST", encode(payload), { ["Content-Type"] = "application/json" })
 end
 
+local function sendDiscordTime(hours, mins, meta)
+    if WEBHOOK_URL == nil or WEBHOOK_URL == "" then
+        print("^1[weather-tracker-webhook]^7 No WEBHOOK_URL set in config.lua; skipping webhook.")
+        return
+    end
+
+    local description = ("**Time changed to:** `%02d:%02d` **Source:** `%s`"):format(hours, mins, tostring(meta.source or "unknown"))
+
+    local embed = {
+        title = SERVER_NAME .. " • Time Update",
+        description = description,
+        color = 5793266, -- teal-ish
+        timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ"),
+    }
+
+    local payload = {
+        username = WEBHOOK_USERNAME,
+        avatar_url = WEBHOOK_AVATAR,
+        embeds = { embed }
+    }
+
+    PerformHttpRequest(WEBHOOK_URL, function(err, text, headers)
+        if err ~= 204 and err ~= 200 then
+            print(("^1[weather-tracker-webhook]^7 Webhook error code: %s; resp: %s"):format(err, tostring(text)))
+        end
+    end, "POST", encode(payload), { ["Content-Type"] = "application/json" })
+end
+
 -- Public API: export and event to notify the tracker of a weather change.
 exports("NotifyWeather", function(weather, meta)
     sendDiscord(weather, meta)
@@ -76,6 +98,11 @@ RegisterNetEvent("weather-tracker:changed", function(weather, meta)
     sendDiscord(weather, meta)
 end)
 
+RegisterNetEvent("cd_easytime:SyncTime", function(hours, mins)
+    sendDiscordTime(hours, mins, { source = "cd_easytime" })
+end)
+
+--[[
 -- Auto-detect via GlobalState or convar polling
 CreateThread(function()
     local watchedKeys = GLOBALSTATE_KEYS or {}
@@ -109,10 +136,10 @@ CreateThread(function()
         Wait(1500)
     end
 end)
-
+]]
 -- Helpful prints
 AddEventHandler('onResourceStart', function(res)
     if res == GetCurrentResourceName() then
-        print("^2[weather-tracker-webhook]^7 started. Configure WEBHOOK_URL in config.lua")
+        print("^2[weather-tracker-webhook]^7 started.")
     end
 end)
