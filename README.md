@@ -57,6 +57,4 @@ Identical weather values within `DEBOUNCE_SECONDS` (default 5s) are ignored.
 - **Using cd_easytime/easytime**: If no GlobalState key is present, enable the bridge or add the single export call where weather changes.
 - **Multiple messages per change**: Increase `DEBOUNCE_SECONDS` in `config.lua`.
 
----
 
-Made for Chelsey Reyes project users. Enjoy!
