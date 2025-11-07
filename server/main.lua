@@ -61,33 +61,8 @@ local function sendDiscord(weather, meta)
     end, "POST", encode(payload), { ["Content-Type"] = "application/json" })
 end
 
-local function sendDiscordTime(hours, mins, meta)
-    if WEBHOOK_URL == nil or WEBHOOK_URL == "" then
-        print("^1[weather-tracker-webhook]^7 No WEBHOOK_URL set in config.lua; skipping webhook.")
-        return
-    end
+    
 
-    local description = ("**Time changed to:** `%02d:%02d` **Source:** `%s`"):format(hours, mins, tostring(meta.source or "unknown"))
-
-    local embed = {
-        title = SERVER_NAME .. " • Time Update",
-        description = description,
-        color = 5793266, -- teal-ish
-        timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ"),
-    }
-
-    local payload = {
-        username = WEBHOOK_USERNAME,
-        avatar_url = WEBHOOK_AVATAR,
-        embeds = { embed }
-    }
-
-    PerformHttpRequest(WEBHOOK_URL, function(err, text, headers)
-        if err ~= 204 and err ~= 200 then
-            print(("^1[weather-tracker-webhook]^7 Webhook error code: %s; resp: %s"):format(err, tostring(text)))
-        end
-    end, "POST", encode(payload), { ["Content-Type"] = "application/json" })
-end
 
 -- Public API: export and event to notify the tracker of a weather change.
 exports("NotifyWeather", function(weather, meta)
@@ -98,12 +73,8 @@ RegisterNetEvent("weather-tracker:changed", function(weather, meta)
     sendDiscord(weather, meta)
 end)
 
-RegisterNetEvent("cd_easytime:SyncTime", function(hours, mins)
-    sendDiscordTime(hours, mins, { source = "cd_easytime" })
-end)
-
---[[
 -- Auto-detect via GlobalState or convar polling
+--[[
 CreateThread(function()
     local watchedKeys = GLOBALSTATE_KEYS or {}
     local lastValue = nil
@@ -137,6 +108,8 @@ CreateThread(function()
     end
 end)
 ]]
+
+
 -- Helpful prints
 AddEventHandler('onResourceStart', function(res)
     if res == GetCurrentResourceName() then

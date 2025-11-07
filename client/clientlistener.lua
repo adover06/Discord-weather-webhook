@@ -1,4 +1,3 @@
--- Client: listen for cd_easytime weather syncs and forward to server
 
 RegisterNetEvent('cd_easytime:SyncWeather', function(data)
     if not data then return end
